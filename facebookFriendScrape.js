@@ -9,6 +9,9 @@
 	NOTE: Eventually the aim here should be to pull friend's details or birthdays, etc.
 	>>>Also, unsure if filepaths here will work for Linux atm '/' vs '\'
 	
+	DISCLAIMER: This may breach Facebook's T&Cs, but I am only intending to use for portfolio, to emulate that which I could not copy from my work for
+	HP/HPE/DXC... This is intended solely for research!
+	
 	******Author: Richard McCormack*******
 */
 
@@ -107,10 +110,10 @@ casper.then(function(){
 	//sample: 'www.facebook.com/<UserNameParameter>'... So I have to traverse the body to get this full base-URI. The second anchor tag in html body had a href to
 	//this... This is the link at the top of a User's page to return to their own homepage.
 	//this.thenOpen(this.getCurrentUrl()+'friends/');	
-	var fullURI = this.evaluate(function(){
+	var s_fullURI = this.evaluate(function(){
         return document.querySelector('a[title="Profile"]').href;
     });
-	this.thenOpen(fullURI+'/friends')
+	this.thenOpen(s_fullURI+'/friends')
 			
 	//Grab Login Screen Populated
 	this.wait(3000,function(){
@@ -130,15 +133,24 @@ casper.then(function(){
 	}
 	
 	console.log('\n\n*************************************************************\n');
-	console.log("Facebook User Friends Page Success, with "+LOGIN_EMAIL+" details. Welcome to "+this.getTitle()+"!");
+	console.log("Facebook User Friends Page Success, with "+LOGIN_EMAIL+" details. Welcome "+this.getTitle()+"!");
 	
 	//get count of friends
-	var friendsCount = this.evaluate(function(){
-        //var baseDOM = 
-		return document.querySelectorAll('div[role="tablist"].a').length//[1].value;
-		// baseDOM.a.span[1].value;
+	var n_friendsCount = this.evaluate(function(){
+        return document.querySelector('a[data-tab-key="friends"] > span').innerHTML;
     });
-	console.log(friendsCount);
+	console.log("Wow, "+LOGIN_EMAIL+"...\nYou have "+n_friendsCount+" friends!");
+	
+	//get first friend object {name, url} for now
+	var o_fr1_Name_URL = this.evaluate(function(){
+        var o_getFriendObj = document.querySelector('div[data-testid="friend_list_item"] > div > div:last-child > div > div:last-child > div > a');
+		var s_fullURL = o_getFriendObj.href;
+		return {"name": o_getFriendObj.innerHTML, "url": s_fullURL.substring(0,s_fullURL.indexOf('?'))};
+    });
+	console.log(JSON.stringify(o_fr1_Name_URL));	
+
+	//Use array below to get friend objects {name, url} list items, and iterate until friendsCount is reached
+	var a_allFriends = [];
 	
 });
 
